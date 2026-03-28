@@ -1088,6 +1088,55 @@ class Writer {
 		o.write(morph_shape_data);
 	}
 
+	function writeButton(id: Int, trackAsMenu: Bool, records: Array<ButtonRecord>, actions: haxe.io.Bytes) {
+		var old = openTMP();
+
+		o.writeUInt16(id);
+		o.writeByte(trackAsMenu ? 1 : 0);
+
+		var old2 = openTMP();
+		for(record in records) {
+			writeButtonRecord(record);
+		}
+		o.writeByte(0); // CharacterEndFlag
+		var recordData = closeTMP(old2);
+
+		if(actions != null) {
+			o.writeUInt16(recordData.length + 2);
+			o.write(recordData);
+			o.write(actions);
+		} else {
+			o.writeUInt16(0);
+			o.write(recordData);
+		}
+
+		var data = closeTMP(old);
+		writeTID(TagId.DefineButton2, data.length);
+		trace(data.length);
+		o.write(data);
+	}
+
+	function writeButtonRecord(record: ButtonRecord) {
+		bits.flush();
+		bits.writeBits(2, 0); // Reserved
+		bits.writeBit(record.blendMode != null);
+		bits.writeBit(record.filters != null && record.filters.length > 0);
+		bits.writeBit(record.stateHitTest);
+		bits.writeBit(record.stateDown);
+		bits.writeBit(record.stateOver);
+		bits.writeBit(record.stateUp);
+		o.writeUInt16(record.cid);
+		o.writeUInt16(record.depth);
+		writeMatrix(record.matrix);
+		writeCXA(record.color);
+		if(record.filters != null && record.filters.length > 0) {
+			writeFilters(record.filters);
+		}
+		if(record.blendMode != null) {
+			writeBlendMode(record.blendMode);
+		}
+	}
+
 	function writeFontGlyphs(glyphs: Array<ShapeWithoutStyleData>) {
 		var old = openTMP();
 
@@ -1332,8 +1381,8 @@ class Writer {
 		case TMorphShape(id, data):
 			writeMorphShape(id, data);
 				
-		case TButton(id, trackAsMenu, records):
-			throw "Button write not implemented";
+		case TButton(id, trackAsMenu, records, actions):
+			writeButton(id, trackAsMenu, records, actions);
 				
 		case TFont(id, data):
 			writeFont(id, data);

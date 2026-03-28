@@ -43,7 +43,7 @@ enum SWFTag {
 	TMorphShape( id : Int, data : MorphShapeData );
 	TFont( id : Int, data: FontData);
 	TFontInfo( id : Int, data: FontInfoData);
-	TButton(id:Int,trackAsMenu:Bool ,records:Array<ButtonRecord>);
+	TButton( id:Int, trackAsMenu:Bool, records:Array<ButtonRecord>, actions: Null<haxe.io.Bytes> );
 	TBackgroundColor( color : Int );
 	TDoActions( data : haxe.io.Bytes );
 	TClip( id : Int, frames : Int, tags : Array<SWFTag> );
@@ -309,7 +309,7 @@ typedef FocalGradient = {
 	var data : Gradient;
 }
 
-class  ButtonRecord  {
+class ButtonRecord  {
 	public var stateHitTest:Bool;
 	public var stateDown:Bool;
 	public var stateOver:Bool;

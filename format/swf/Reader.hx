@@ -905,34 +905,37 @@ class Reader {
 		var reserved = bits.readBits(7);
 		var trackAsMenu = bits.readBit();
 		var actionOffset = i.readUInt16();
-		
-		var actions:haxe.io.Bytes;
+		var actions:Null<haxe.io.Bytes> = null;
 		var records:Array<ButtonRecord>;
 		if(actionOffset==0){
 			records = readButtonRecord(ver);
 		}else{
 			records = readButtonRecord(ver);
-			actions=i.readAll();
+			actions = i.readAll();
 		}
-		return TButton(cid,trackAsMenu,records);
+		return TButton(cid, trackAsMenu, records, actions);
 	}
+
 	function readButtonRecord(ver:Int):Array<ButtonRecord>{
 		var records:Array<ButtonRecord>=new Array();
 		while (true){
 			bits.reset();
-			var record=new ButtonRecord();
+			var record = new ButtonRecord();
 			var reserved = bits.readBits(2);
-			var hasBlendMode=bits.readBit();
-			var	hasFilterList=bits.readBit();
-			record.stateHitTest=bits.readBit();
-			record.stateDown=bits.readBit();
-			record.stateOver=bits.readBit();
-			record.stateUp=bits.readBit();
-			if(!record.stateHitTest &&! record.stateDown &&! record.stateOver &&! record.stateUp) break;
-			record.cid=i.readUInt16();
-			record.depth=i.readUInt16();
+			var hasBlendMode = bits.readBit();
+			var	hasFilterList = bits.readBit();
+			record.stateHitTest = bits.readBit();
+			record.stateDown = bits.readBit();
+			record.stateOver = bits.readBit();
+			record.stateUp = bits.readBit();
+
+			// Zero byte indicates end of button records.
+			if(!record.stateHitTest && !record.stateDown && !record.stateOver && !record.stateUp) break;
+
+			record.cid = i.readUInt16();
+			record.depth = i.readUInt16();
 			record.matrix = readMatrix();
-			record.color=readCXA();
+			record.color = readCXA();
 			if(hasFilterList){
 				 record.filters = readFilters();
 			}
