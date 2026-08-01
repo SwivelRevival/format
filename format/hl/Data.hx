@@ -83,7 +83,7 @@ typedef HLFunction = {
 	var regs : Array<HLType>;
 	var ops : Array<Opcode>;
 	var debug : Array<Int>;
-	var assigns : Array<{ varName : Index<String>, position : Index<Opcode> }>;
+	var assigns : Array<{ varName : Index<String>, position : Index<Opcode>, scopeEnd : Index<Opcode> }>;
 }
 
 typedef HLConstant = {
